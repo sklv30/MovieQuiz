@@ -1,19 +1,19 @@
 import UIKit
 
-final class MovieQuizViewController:
-
-    UIViewController {
-
+final class MovieQuizViewController: UIViewController {
     
-    @IBOutlet weak var questionLabel: UILabel!
-    @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var counterLabel: UILabel!
+    
+    @IBOutlet private weak var questionLabel: UILabel!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var noBtn: UIButton!
+    @IBOutlet private weak var yesBtn: UIButton!
     
     private var testRating = 6.0
-    private var currentQuestionIndex = 0
-    private var correctAnswers = 0
+    private var currentQuestionIndex: Int = .zero
+    private var correctAnswers: Int = .zero
     private var curreuntQuiz: QuizQuestion?
-
+    
     private let movies: [MovieData] = [
         MovieData(name: "The Godfather", image: "The Godfather", rating: 9.2),
         MovieData(name: "The Dark Knight", image: "The Dark Knight", rating: 9.0),
@@ -62,10 +62,10 @@ final class MovieQuizViewController:
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.YPGreen.cgColor : UIColor.YPRed.cgColor
-        imageView.layer.cornerRadius = 15
+        imageView.layer.cornerRadius = 20
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-           self.showNextQuestionOrResults()
+            self.showNextQuestionOrResults()
         }
     }
     
@@ -82,8 +82,9 @@ final class MovieQuizViewController:
                 // Не получается просто рамку через imageView.layer.masksToBounds = false
                 imageView.layer.borderWidth = 0
                 show(quiz: convert(model: curreuntQuiz))
+                noBtn.isEnabled = true
+                yesBtn.isEnabled = true
             }
-            
         }
     }
     
@@ -91,8 +92,8 @@ final class MovieQuizViewController:
         let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
         
         let action = UIAlertAction(title: result.btnText, style: .default) {_ in
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
+            self.currentQuestionIndex = .zero
+            self.correctAnswers = .zero
             
             self.curreuntQuiz = self.quizQuestionBilder(movie: self.movies[self.currentQuestionIndex])
             if let quiz = self.curreuntQuiz {
@@ -104,21 +105,19 @@ final class MovieQuizViewController:
         self.present(alert, animated: true, completion: nil)
     }
     
-    
-    
-    @IBAction func noBtnClickHandler(_ sender: Any) {
+    @IBAction private func noBtnClickHandler(_ sender: Any) {
         if let curreuntQuiz {
+            noBtn.isEnabled = false
             showAnswerResult(isCorrect: !curreuntQuiz.correctAnswer)
         }
-        
     }
     
-    @IBAction func yesBtnClickHandler(_ sender: Any) {
+    @IBAction private func yesBtnClickHandler(_ sender: Any) {
         if let curreuntQuiz {
+            yesBtn.isEnabled = false
             showAnswerResult(isCorrect: curreuntQuiz.correctAnswer)
         }
     }
-    
 }
 
 struct QuizQuestion {

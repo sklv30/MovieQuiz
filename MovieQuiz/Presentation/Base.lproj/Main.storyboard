@@ -46,14 +46,14 @@
                                         </subviews>
                                     </stackView>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9LH-bs-ibh" userLabel="Preview Image">
-                                        <rect key="frame" x="9" y="43.666666666666686" width="335.33333333333337" height="503.00000000000006"/>
+                                        <rect key="frame" x="9" y="43.666666666666686" width="335.33333333333331" height="503.00000000000006"/>
                                         <color key="backgroundColor" name="YP White"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="9LH-bs-ibh" secondAttribute="height" multiplier="2:3" id="KTP-ym-RnC"/>
                                         </constraints>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="15"/>
+                                                <integer key="value" value="20"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </imageView>
@@ -127,7 +127,9 @@
                     <connections>
                         <outlet property="counterLabel" destination="imv-30-cez" id="aua-QC-X9h"/>
                         <outlet property="imageView" destination="9LH-bs-ibh" id="InS-cm-c4y"/>
+                        <outlet property="noBtn" destination="CCQ-BW-U8W" id="EMx-Vs-Rni"/>
                         <outlet property="questionLabel" destination="r1j-eh-sjA" id="WYd-LX-Jb4"/>
+                        <outlet property="yesBtn" destination="iRI-Lx-jk9" id="eBr-w6-50d"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
