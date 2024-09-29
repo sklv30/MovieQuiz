@@ -82,8 +82,7 @@ final class MovieQuizViewController: UIViewController {
                 // Не получается просто рамку через imageView.layer.masksToBounds = false
                 imageView.layer.borderWidth = 0
                 show(quiz: convert(model: curreuntQuiz))
-                noBtn.isEnabled = true
-                yesBtn.isEnabled = true
+                changeStateButton(isEnabled: true)
             }
         }
     }
@@ -105,16 +104,21 @@ final class MovieQuizViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    private func changeStateButton(isEnabled: Bool) {
+        noBtn.isEnabled = isEnabled
+        yesBtn.isEnabled = isEnabled
+    }
+    
     @IBAction private func noBtnClickHandler(_ sender: Any) {
         if let curreuntQuiz {
-            noBtn.isEnabled = false
+            changeStateButton(isEnabled: false)
             showAnswerResult(isCorrect: !curreuntQuiz.correctAnswer)
         }
     }
     
     @IBAction private func yesBtnClickHandler(_ sender: Any) {
         if let curreuntQuiz {
-            yesBtn.isEnabled = false
+            changeStateButton(isEnabled: false)
             showAnswerResult(isCorrect: curreuntQuiz.correctAnswer)
         }
     }
