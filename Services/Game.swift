@@ -1,19 +1,20 @@
 import Foundation
 import UIKit
 
-class Game: QuestionFactoryDelegate {
+final class Game {
     var questionQuantuty: Int
-    var currentQuestionNumber: Int = 0
-    private var currentQuestionRating: Double = 0.0
     var correctAnswers: Int = 0
-    let questionFactory: QuestionFactory
     weak var gameDelegate: GameDelegate?
-    let statisticService: StatisticServiceProtocol
+    
+    private var currentQuestionNumber: Int = 0
+    private var currentQuestionRating: Double = 0.0
+    private let questionFactory: QuestionFactory
+    private let statisticService: StatisticService
     
     init(questionQuantuty: Int) {
         self.questionQuantuty = questionQuantuty
         self.questionFactory = QuestionFactory()
-        self.statisticService = StatisticService()
+        self.statisticService = StatisticServiceImplementation()
         self.questionFactory.delegate = self
     }
     
@@ -26,22 +27,6 @@ class Game: QuestionFactoryDelegate {
         return question
     }
     
-    func didReceiveNextQuestion(_ movie: MovieData?) {
-        
-        guard let movie = movie else {
-                return
-        }
-        
-        let newQestion = prepareQuestionView(movie)
-        currentQuestionRating = movie.rating
-        currentQuestionNumber += 1
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.gameDelegate?.showQuestion(newQestion)
-        }
-        
-    }
-    
     func startNewRound() {
         questionFactory.requestNextQuestion()
     }
@@ -51,7 +36,7 @@ class Game: QuestionFactoryDelegate {
     }
     
     func checkGameLength() -> Bool {
-        return questionQuantuty >= currentQuestionNumber + 1 ? true : false
+        return questionQuantuty >= currentQuestionNumber + 1
     }
     
     func restartGame() {
@@ -65,5 +50,21 @@ class Game: QuestionFactoryDelegate {
     
     func showStatistic(currentGameResult: Int, currentGameRoundsCount: Int) -> String {
         return self.statisticService.showStatistic(currentGameResult: currentGameResult, currentGameRoundsCount: currentGameRoundsCount)
+    }
+}
+
+extension Game: QuestionFactoryDelegate {
+    func didReceiveNextQuestion(_ movie: MovieData?) {
+        guard let movie = movie else {
+            return
+        }
+        
+        let newQestion = prepareQuestionView(movie)
+        currentQuestionRating = movie.rating
+        currentQuestionNumber += 1
+        
+        DispatchQueue.main.async {
+            self.gameDelegate?.showQuestion(newQestion)
+        }
     }
 }

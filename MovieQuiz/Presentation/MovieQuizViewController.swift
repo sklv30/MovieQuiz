@@ -8,6 +8,7 @@ final class MovieQuizViewController: UIViewController, GameDelegate {
     @IBOutlet private weak var yesBtn: UIButton!
     let game = Game(questionQuantuty: 10)
     let alert = ResultAlertPresenter()
+    let statisticService: StatisticService = StatisticServiceImplementation()
     
     override func viewDidLoad() {
         super.viewDidLoad()

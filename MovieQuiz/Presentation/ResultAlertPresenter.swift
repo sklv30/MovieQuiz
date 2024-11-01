@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class ResultAlertPresenter {
+final class ResultAlertPresenter {
     
     func buildAlert(game: Game) -> UIAlertController {
         let result = prepareResultViewModel(game: game)
