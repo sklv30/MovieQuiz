@@ -1,107 +1,64 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
-    
-    
+final class MovieQuizViewController: UIViewController, GameDelegate {
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var noBtn: UIButton!
     @IBOutlet private weak var yesBtn: UIButton!
-    
-    private var testRating = 6.0
-    private var currentQuestionIndex: Int = .zero
-    private var correctAnswers: Int = .zero
-    private var curreuntQuiz: QuizQuestion?
-    
-    private let movies: [MovieData] = [
-        MovieData(name: "The Godfather", image: "The Godfather", rating: 9.2),
-        MovieData(name: "The Dark Knight", image: "The Dark Knight", rating: 9.0),
-        MovieData(name: "Kill Bill", image: "Kill Bill", rating: 8.1),
-        MovieData(name: "The Avengers", image: "The Avengers", rating: 8.0),
-        MovieData(name: "Deadpool", image: "Deadpool", rating: 8.0),
-        MovieData(name: "The Green Knight", image: "The Green Knight", rating: 6.6),
-        MovieData(name: "Old", image: "Old", rating: 5.8),
-        MovieData(name: "The Ice Age Adventures of Buck Wild", image: "The Ice Age Adventures of Buck Wild", rating: 4.3),
-        MovieData(name: "Tesla", image: "Tesla", rating: 5.1),
-        MovieData(name: "Vivarium", image: "Vivarium", rating: 5.8)
-    ]
-    
-    
+    let game = Game(questionQuantuty: 10)
+    let alert = ResultAlertPresenter()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        curreuntQuiz = quizQuestionBilder(movie: movies[currentQuestionIndex])
-        if let curreuntQuiz {
-            show(quiz: convert(model: curreuntQuiz))
-        }
+        game.gameDelegate = self
+        game.startNewRound()
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let qustionStep = QuizStepViewModel(image: UIImage(named: model.image) ?? UIImage(), question: model.question, questionNumber: "\(currentQuestionIndex + 1)/\(movies.count)")
-        
-        return qustionStep
+    func showQuestion(_ question: QuestionViewModel) {
+        questionLabel.text = question.question
+        imageView.image = question.image
+        counterLabel.text = question.questionNumber
     }
     
-    private func show (quiz step: QuizStepViewModel) {
-        counterLabel.text = step.questionNumber
-        imageView.image = step.image
-        questionLabel.text = step.question
+    private func showResultAlert(alert: UIAlertController) {
+        self.present(alert, animated: true, completion: nil)
     }
     
-    private func quizQuestionBilder (movie: MovieData) -> QuizQuestion {
-        let quiz = QuizQuestion(image: movie.image, rating: movie.rating, testRating: testRating)
-        return quiz
-    }
-    
-    
-    private func showAnswerResult(isCorrect: Bool) {
+    private func showAnswerOrResult(isCorrect: Bool) {
+        addBorder(isCorrect: isCorrect)
         if isCorrect {
-            correctAnswers += 1
+            game.correctAnswers += 1
         }
+        changeStateButton(isEnabled: false)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {[weak self] in
+            guard let self = self else { return }
+            if self.game.checkGameLength() {
+                self.showAnswer()
+            } else {
+                self.showResult()
+            }
+        }
+    }
+    
+    private func showAnswer() {
+        game.startNewRound()
+        imageView.layer.borderWidth = 0
+        changeStateButton(isEnabled: true)
+    }
+    
+    private func showResult() {
+        game.updateStatistic(game.questionQuantuty, game.correctAnswers)
+        showResultAlert(alert: alert.buildAlert(game: game))
+        imageView.layer.borderWidth = 0
+        changeStateButton(isEnabled: true)
+    }
+    
+    private func addBorder(isCorrect: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.YPGreen.cgColor : UIColor.YPRed.cgColor
-        imageView.layer.cornerRadius = 20
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.showNextQuestionOrResults()
-        }
-    }
-    
-    private func showNextQuestionOrResults() {
-        if currentQuestionIndex == movies.count - 1 {
-            let text = "Ваш результат: \(correctAnswers)/10"
-            let viewModel = QuizResultsViewModel(title: "Этот раунд окончен!", text: text, btnText: "Сыграть ещё раз")
-            imageView.layer.borderWidth = 0
-            show(quiz: viewModel)
-        } else {
-            currentQuestionIndex += 1
-            curreuntQuiz = quizQuestionBilder(movie: movies[currentQuestionIndex])
-            if let curreuntQuiz {
-                // Не получается просто рамку через imageView.layer.masksToBounds = false
-                imageView.layer.borderWidth = 0
-                show(quiz: convert(model: curreuntQuiz))
-                changeStateButton(isEnabled: true)
-            }
-        }
-    }
-    
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: result.btnText, style: .default) {_ in
-            self.currentQuestionIndex = .zero
-            self.correctAnswers = .zero
-            
-            self.curreuntQuiz = self.quizQuestionBilder(movie: self.movies[self.currentQuestionIndex])
-            if let quiz = self.curreuntQuiz {
-                self.show(quiz: self.convert(model: quiz))
-            }
-        }
-        
-        alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
     
     private func changeStateButton(isEnabled: Bool) {
@@ -110,46 +67,10 @@ final class MovieQuizViewController: UIViewController {
     }
     
     @IBAction private func noBtnClickHandler(_ sender: Any) {
-        if let curreuntQuiz {
-            changeStateButton(isEnabled: false)
-            showAnswerResult(isCorrect: !curreuntQuiz.correctAnswer)
-        }
+        showAnswerOrResult(isCorrect: !game.checkAnswer())
+    }
+    @IBAction private func yesBtnClickHandler(_ sender: Any) {
+        showAnswerOrResult(isCorrect: game.checkAnswer())
     }
     
-    @IBAction private func yesBtnClickHandler(_ sender: Any) {
-        if let curreuntQuiz {
-            changeStateButton(isEnabled: false)
-            showAnswerResult(isCorrect: curreuntQuiz.correctAnswer)
-        }
-    }
-}
-
-struct QuizQuestion {
-    let image: String
-    var rating: Double
-    var testRating: Double
-    var correctAnswer: Bool {
-        rating > testRating ? true : false
-    }
-    var question: String {
-        "Рейтинг этого фильма больше чем \(Int(testRating))?"
-    }
-}
-
-struct QuizStepViewModel {
-    let image: UIImage
-    let question: String
-    let questionNumber: String
-}
-
-struct QuizResultsViewModel {
-    let title: String
-    let text: String
-    let btnText: String
-}
-
-struct MovieData {
-    let name: String
-    let image: String
-    var rating: Double
 }
