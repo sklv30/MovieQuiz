@@ -9,12 +9,10 @@ final class Game {
     private var currentQuestionNumber: Int = 0
     private var currentQuestionRating: Double = 0.0
     private let questionFactory: QuestionFactory
-    private let statisticService: StatisticService
     
     init(questionQuantuty: Int) {
         self.questionQuantuty = questionQuantuty
         self.questionFactory = QuestionFactory()
-        self.statisticService = StatisticServiceImplementation()
         self.questionFactory.delegate = self
     }
     
@@ -42,14 +40,6 @@ final class Game {
     func restartGame() {
         currentQuestionNumber = 0
         correctAnswers = 0
-    }
-    
-    func updateStatistic(_ currentGameResult: Int,_ currentGameRoundsCount: Int) {
-        self.statisticService.store(roundsCount: currentGameResult, winsRoundCount: currentGameRoundsCount)
-    }
-    
-    func showStatistic(currentGameResult: Int, currentGameRoundsCount: Int) -> String {
-        return self.statisticService.showStatistic(currentGameResult: currentGameResult, currentGameRoundsCount: currentGameRoundsCount)
     }
 }
 

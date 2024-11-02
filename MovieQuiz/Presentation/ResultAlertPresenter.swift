@@ -3,8 +3,8 @@ import UIKit
 
 final class ResultAlertPresenter {
     
-    func buildAlert(game: Game) -> UIAlertController {
-        let result = prepareResultViewModel(game: game)
+    func buildAlert(game: Game, statistics: StatisticService) -> UIAlertController {
+        let result = prepareResultViewModel(game: game, statistics: statistics)
         let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
         let action = UIAlertAction(title: result.btnText, style: .default) { _ in
             game.restartGame()
@@ -15,10 +15,10 @@ final class ResultAlertPresenter {
         return alert
     }
     
-    private func prepareResultViewModel(game: Game) -> QuizResultsViewModel {
+    private func prepareResultViewModel(game: Game, statistics: StatisticService) -> QuizResultsViewModel {
         let result = QuizResultsViewModel(
             title: "Этот раунд окончен!",
-            text: game.showStatistic(currentGameResult: game.correctAnswers, currentGameRoundsCount: game.questionQuantuty),
+            text: statistics.showStatistic(currentGameResult: game.correctAnswers, currentGameRoundsCount: game.questionQuantuty),
             btnText: "Сыграть ещё раз"
         )
         

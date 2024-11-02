@@ -50,8 +50,8 @@ final class MovieQuizViewController: UIViewController, GameDelegate {
     }
     
     private func showResult() {
-        game.updateStatistic(game.questionQuantuty, game.correctAnswers)
-        showResultAlert(alert: alert.buildAlert(game: game))
+        updateStatistic(game.questionQuantuty, game.correctAnswers)
+        showResultAlert(alert: alert.buildAlert(game: game, statistics: statisticService))
         imageView.layer.borderWidth = 0
         changeStateButton(isEnabled: true)
     }
@@ -67,11 +67,18 @@ final class MovieQuizViewController: UIViewController, GameDelegate {
         yesBtn.isEnabled = isEnabled
     }
     
+    private func updateStatistic(_ currentGameResult: Int,_ currentGameRoundsCount: Int) {
+        statisticService.store(roundsCount: currentGameResult, winsRoundCount: currentGameRoundsCount)
+    }
+    
+    private func showStatistic(currentGameResult: Int, currentGameRoundsCount: Int) -> String {
+        return self.statisticService.showStatistic(currentGameResult: currentGameResult, currentGameRoundsCount: currentGameRoundsCount)
+    }
+    
     @IBAction private func noBtnClickHandler(_ sender: Any) {
         showAnswerOrResult(isCorrect: !game.checkAnswer())
     }
     @IBAction private func yesBtnClickHandler(_ sender: Any) {
         showAnswerOrResult(isCorrect: game.checkAnswer())
     }
-    
 }
